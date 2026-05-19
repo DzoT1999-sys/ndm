@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build: ./app
+    networks:
+      - proxynet
+
+  nginx1:
+    image: nginx:1.25-alpine
+    ports: ["8081:80"]
+    volumes:
+      - ./nginx/nginx1.conf:/etc/nginx/conf.d/default.conf
+    depends_on: [nginx2, app]
+    networks: [proxynet]
+
+  nginx2:
+    image: nginx:1.25-alpine
+    ports: ["8082:80"]
+    volumes:
+      - ./nginx/nginx2.conf:/etc/nginx/conf.d/default.conf
+    depends_on: [nginx3, app]
+    networks: [proxynet]
+
+  nginx3:
+    image: nginx:1.25-alpine
+    ports: ["8083:80"]
+    volumes:
+      - ./nginx/nginx3.conf:/etc/nginx/conf.d/default.conf
+    depends_on: [app]
+    networks: [proxynet]
+
+networks:
+  proxynet:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
